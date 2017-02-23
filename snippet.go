@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 	"log"
-
+	"io/ioutil"
 	"golang.org/x/net/context"
 
 	// [START imports]
@@ -57,8 +57,47 @@ func main() {
 	fmt.Printf("%#v", resp)
 	//fmt.Printf(
 	//textout,err := translateText("es","The quick brown fox jumped over the lazy dog.")
-	translateTextn("The quick brown fox jumped over the lazy dog.")
+	//translateTextn("The quick brown fox jumped over the lazy dog.")
 	//fmt.Printf(textout)
+	translateTextnf("translate.txt")
+}
+func translateTextnf(file string) (string, error) {
+	ctx := context.Background()
+	//ngs, err := client.SupportedLanguages(ctx, language.English)
+	//for _, lang := range langs {
+	//	fmt.Printf("%q: %s\n", lang.Tag, lang.Name)
+	//}
+	//lang, err := language.Parse(targetLanguage)
+//	if err != nil {
+//		return "", err
+//	}
+	textb, err := ioutil.ReadFile(file)
+    	if err != nil {
+     //   panic(err)
+    	}
+	text := string(textb)
+	client, err := translate.NewClient(ctx)
+	if err != nil {
+		return "", err
+	}
+	defer client.Close()
+	langs, err := client.SupportedLanguages(ctx, language.English)
+	for _, lang := range langs {
+		fmt.Printf("%q: %s\n", lang.Tag, lang.Name)
+//		lang1, err := language.Parse(lang.Tag)
+	
+		resp, err := client.Translate(ctx, []string{text}, lang.Tag, nil)
+		fmt.Printf(resp[0].Text)
+		fmt.Printf("\n")
+		if err != nil {
+		return "", err
+	}
+	}
+	if err != nil {
+		return "", err
+	}
+	//return resp[0].Text, nil
+	return "", nil
 }
 
 func translateTextn(text string) (string, error) {
